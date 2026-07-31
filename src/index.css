@@ -1,0 +1,77 @@
+/**
+ * Kamino Blog — entry stylesheet.
+ *
+ * Renders against the exact same design-system foundation as the Kamino app
+ * and landing site. The token CSS, token extensions, and Aeonik font stack are
+ * VENDORED under `./styles/vendor/` (byte-identical copies of
+ * `packages/design-system/styles/*`) so this app stands on its own — see
+ * `src/styles/vendor/README.md` for provenance and how to re-sync.
+ */
+@import './styles/vendor/tokens.generated.css';
+@import './styles/vendor/tokens.extensions.css';
+@import './styles/vendor/fonts.css';
+@import './styles/blog.animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --outline: rgba(163, 163, 163, 0.5);
+    --accent-hover: rgba(245, 245, 245, 0.8);
+    --font-sans: var(--font-font-sans), 'Inter', system-ui, sans-serif;
+    --font-mono: var(--font-font-mono), 'JetBrains Mono', ui-monospace, monospace;
+
+    /* Page container geometry — mirrors the default <Container> (max-w-[1120px]
+       + responsive gutter). Used by full-bleed sections (e.g. the highlights
+       reel) to align their content to the container while running to the edge. */
+    --page-max: 1120px;
+    --page-gutter: 20px;
+  }
+}
+
+@media (min-width: 640px) {
+  :root {
+    --page-gutter: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --page-gutter: 48px;
+  }
+}
+
+@layer base {
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--base-background);
+    color: var(--base-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .tabular-nums {
+    font-feature-settings: 'lnum' 1, 'tnum' 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

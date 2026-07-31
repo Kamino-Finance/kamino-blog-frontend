@@ -1,0 +1,812 @@
+{
+  "posts": [
+    {
+      "slug": "xpoints-live",
+      "title": "xPoints are live on Kamino",
+      "category": "announcements",
+      "tags": [
+        "xPoints",
+        "Rewards",
+        "Tokenized Assets"
+      ],
+      "authors": [
+        "maya-osei"
+      ],
+      "publishedAt": "2026-07-22",
+      "excerpt": "Earn xPoints for what you already do on Kamino — including trading tokenized stocks through xStocks. Here’s how the program works.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/1d6712f7239aca821d344874fab0e4bd4c5b04df-1600x900.png",
+      "coverFocus": "center",
+      "featured": true,
+      "seo": {
+        "description": "xPoints are live on Kamino — a rewards program for supplying, borrowing, and trading tokenized stocks through xStocks."
+      },
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "xPoints are live. Starting today you earn points for the things you already do on Kamino — supplying, borrowing, and now trading tokenized stocks through xStocks — and redeem them each season."
+        },
+        {
+          "_type": "paragraph",
+          "text": "The program launches alongside tokenized equities. Apple, Nvidia, a tokenized S&P 500 tracker, and a first set of blue-chip names are live through xStocks — priced onchain, settled onchain, and held in an account only you control. Trading them is one of the fastest ways to earn xPoints, and the exposure is the same asset you already understand; what changes is the rail underneath it."
+        },
+        {
+          "_type": "stat",
+          "items": [
+            {
+              "_key": "b2s0",
+              "label": "Tokenized names at launch",
+              "value": "60+"
+            },
+            {
+              "_key": "b2s1",
+              "label": "Trading, including weekends",
+              "value": "24/7"
+            },
+            {
+              "_key": "b2s2",
+              "label": "Onchain settlement",
+              "value": "T+0"
+            }
+          ]
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "What you can do today",
+          "id": "what-you-can-do-today"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Every tokenized equity behaves like the rest of your Kamino portfolio. You can **buy and sell** with USDC, **hold** alongside your stablecoin yield and crypto positions, and — for supported names — **borrow against** the position without selling it."
+        },
+        {
+          "_type": "list",
+          "style": "bullet",
+          "items": [
+            "Fund with a card or bank transfer and convert to USDC in the same flow.",
+            "Buy any listed name from its asset page, with live onchain pricing.",
+            "Track dividends where the issuer distributes them, paid in stablecoins."
+          ]
+        },
+        {
+          "_type": "callout",
+          "tone": "info",
+          "title": "How pricing works",
+          "text": "Tokenized equities are priced against the underlying via the issuer’s oracle feed, aggregated through Kamino’s in-house oracle architecture. When traditional markets are closed, prices reflect the last official close plus onchain order flow."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Held in your own account",
+          "id": "held-in-your-own-account"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Tokenized equities on Kamino are self-custodial. The token representing your position sits in your account, not on our balance sheet, and moves only when you sign for it. That is the whole point of settling onchain: ownership is provable and portable, and you are never asking permission to access your own holdings."
+        },
+        {
+          "_type": "quote",
+          "text": "We want buying a share of a company to feel as ordinary as sending a message — and to settle with the finality of cash.",
+          "attribution": "Maya Osei",
+          "source": "Product, Kamino"
+        },
+        {
+          "_type": "heading",
+          "level": 3,
+          "text": "Part of a busy few months",
+          "id": "part-of-a-busy-few-months"
+        },
+        {
+          "_type": "paragraph",
+          "text": "xStocks join a steady run of launches — fixed-rate borrowing, a new standard for stablecoin yield, and curated vaults crossing their first big milestones."
+        },
+        {
+          "_type": "gallery",
+          "items": [
+            {
+              "src": "https://cdn.sanity.io/images/2kksiz70/production/3dcdb3157f681bf180911315ae16c48f6ac88f38-1600x900.png",
+              "alt": "Fixed-rate borrowing announcement",
+              "caption": "Fixed-rate borrowing"
+            },
+            {
+              "src": "https://cdn.sanity.io/images/2kksiz70/production/8e628458d817322a70271fc825fa9471ce5e283b-1600x900.png",
+              "alt": "A new standard for stablecoin yield",
+              "caption": "A new standard for stablecoin yield"
+            }
+          ]
+        },
+        {
+          "_type": "divider"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Tokenized equities are the next asset class to come onto the same rails as our stablecoin yield, crypto markets, and tokenized real-world assets. More names — and more of what you can do with them — are landing over the coming weeks."
+        }
+      ]
+    },
+    {
+      "slug": "multiply-one-transaction",
+      "title": "How Kamino Multiply builds a leveraged position in one transaction",
+      "category": "deep-dives",
+      "tags": [
+        "Multiply",
+        "Leverage",
+        "Architecture"
+      ],
+      "authors": [
+        "daniel-roux"
+      ],
+      "publishedAt": "2026-07-15",
+      "excerpt": "One tap creates a leveraged position that would otherwise take a loop of deposits, borrows, and swaps. Here is the machinery that makes it atomic.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/7e89179b0bfad617f4bee03496cbc9c47a80686f-1600x1010.png",
+      "coverFocus": "center",
+      "featured": false,
+      "seo": {
+        "description": "A technical look at how Kamino Multiply composes a flash loan, a swap, and a deposit into a single atomic transaction."
+      },
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "Leverage onchain used to be a chore: deposit collateral, borrow against it, swap the borrow back into more collateral, deposit again, and repeat until you hit your target. Every step is a transaction, a fee, and a chance for the price to move against you. Kamino Multiply does the whole loop in one tap. This is how."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "The problem with looping",
+          "id": "the-problem-with-looping"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Say you want 3× exposure to an asset. Done manually, you would deposit, borrow ~65% of that value, swap it, deposit again, and keep going. Five or six round trips later you are close to target — having paid gas and swap fees at every step and carried open, half-built positions the entire time."
+        },
+        {
+          "_type": "callout",
+          "tone": "warning",
+          "title": "Why the half-built state is dangerous",
+          "text": "Between steps, your position is under-collateralized relative to your intent. A sharp move mid-loop can liquidate you before the position is even finished. Atomicity removes that window entirely."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Collapse the loop with a flash loan",
+          "id": "collapse-the-loop-with-a-flash-loan"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Instead of looping, Multiply borrows the _entire_ target amount up front with a flash loan, builds the final position, and repays the flash loan from the newly-created debt — all inside a single transaction that either completes fully or reverts."
+        },
+        {
+          "_type": "list",
+          "style": "number",
+          "items": [
+            "Flash-borrow the full leverage amount in the debt asset.",
+            "Swap it into the collateral asset through Kamino Swap for best execution.",
+            "Deposit your principal plus the swapped collateral into the market.",
+            "Borrow against the combined collateral to repay the flash loan."
+          ]
+        },
+        {
+          "_type": "paragraph",
+          "text": "If any step fails — the swap slips past tolerance, the borrow would breach the market’s limits — the whole transaction reverts and you are left exactly as you started. There is no partially-built position to unwind."
+        },
+        {
+          "_type": "code",
+          "language": "ts",
+          "filename": "multiply.ts",
+          "code": "// Simplified: one atomic instruction bundle, not a multi-tx loop.\nconst tx = await kamino.multiply({\n  market,\n  collateral: 'JitoSOL',\n  principal: 100,          // what the user brings\n  leverage: 3,             // target exposure\n  maxSlippageBps: 30,      // swap tolerance; overshoot => revert\n})\n\n// Under the hood, in order, inside a single transaction:\n//   flashBorrow(debt)  ->  swap(debt -> collateral)\n//   deposit(principal + collateral)  ->  borrow(debt)  ->  repayFlash()\nawait tx.signAndSend()"
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Why the swap routing matters",
+          "id": "why-the-swap-routing-matters"
+        },
+        {
+          "_type": "paragraph",
+          "text": "The swap in step two is where a naive implementation leaks value. Multiply routes through **Kamino Swap**, which aggregates liquidity across venues to minimize price impact on the (often large) leverage trade. Better execution there flows straight through to a better entry price for the whole position."
+        },
+        {
+          "_type": "table",
+          "head": [
+            "Approach",
+            "Transactions",
+            "Exposure while building",
+            "Failure mode"
+          ],
+          "rows": [
+            [
+              "Manual loop",
+              "5–6",
+              "Under-collateralized mid-loop",
+              "Partial position to unwind"
+            ],
+            [
+              "Kamino Multiply",
+              "1",
+              "None — atomic",
+              "Clean revert, no state change"
+            ]
+          ]
+        },
+        {
+          "_type": "quote",
+          "text": "Atomicity is the feature. Everything else — fewer fees, one signature — falls out of doing the whole thing in a single transaction that can’t half-finish.",
+          "attribution": "Daniel Roux",
+          "source": "Protocol Engineering, Kamino"
+        },
+        {
+          "_type": "divider"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Unwinding works the same way in reverse: flash-repay the debt, withdraw collateral, swap back, settle. One tap, one transaction, no dangling state. That symmetry is what lets Multiply present leverage as a single number you dial up or down, rather than a process you manage."
+        }
+      ]
+    },
+    {
+      "slug": "solstice-launch",
+      "title": "Solstice launches its market on Kamino",
+      "category": "partner-stories",
+      "tags": [
+        "Issuers",
+        "Markets",
+        "Partners"
+      ],
+      "authors": [
+        "leo-fischer"
+      ],
+      "publishedAt": "2026-07-01",
+      "excerpt": "Solstice brought its stablecoin suite to Kamino as an isolated market — borrow, lend, and earn against eUSX and USX in one place. Here is how it came together.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/ea0f2c6bc859e78d124fa32574cb7c5b06d01e88-1600x900.png",
+      "coverFocus": "center",
+      "featured": false,
+      "seo": {
+        "description": "How Solstice launched its stablecoin market on Kamino using an isolated market with a published risk framework."
+      },
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "Solstice tokenized a suite of stablecoins. The token was only half the job — a stablecoin that just sits in a wallet is a screenshot of an asset. The team wanted holders to be able to _use_ it: borrow against it, earn on it, plug it into the rest of onchain finance. So they launched a market on Kamino."
+        },
+        {
+          "_type": "paragraph",
+          "text": "This is how it came together, and what it takes to make a new asset behave like a first-class citizen onchain."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Start with an isolated market",
+          "id": "start-with-an-isolated-market"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Every new asset class carries risk the rest of the system should not inherit. So Solstice launched in an **isolated market**: a self-contained pool where the collateral, the debt asset, and the risk parameters are scoped to Solstice’s stablecoins alone. If anything ever went wrong with the asset, the blast radius stops at that market."
+        },
+        {
+          "_type": "callout",
+          "tone": "info",
+          "title": "Why isolation matters",
+          "text": "A new asset has dependencies the blue-chip pools don’t — a younger price history, thinner liquidity, its own redemption mechanics. Isolating the market lets those be priced and contained without touching everything next door."
+        },
+        {
+          "_type": "stat",
+          "items": [
+            {
+              "_key": "b5s0",
+              "label": "Assets in the market at launch",
+              "value": "6"
+            },
+            {
+              "_key": "b5s1",
+              "label": "Collateral and debt",
+              "value": "eUSX / USX"
+            },
+            {
+              "_key": "b5s2",
+              "label": "Isolated market, zero contagion",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Make the token do work",
+          "id": "make-the-token-do-work"
+        },
+        {
+          "_type": "paragraph",
+          "text": "With the market live, a holder could deposit Solstice stablecoins and borrow against them, or supply them to earn the borrow-side yield. That single capability is what turned a static holding into productive collateral — and it is what pulled liquidity in."
+        },
+        {
+          "_type": "embed",
+          "kind": "tweet",
+          "url": "https://x.com/kaminofinance",
+          "title": "Solstice market is live on Kamino →"
+        },
+        {
+          "_type": "quote",
+          "text": "Kamino gave our token somewhere to go. The day borrowing went live, the asset stopped being a certificate and started being infrastructure.",
+          "attribution": "A member of the Solstice team"
+        },
+        {
+          "_type": "divider"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Solstice is one issuer. The pattern generalizes: bring the asset onchain, launch an isolated market with a real risk framework, price it properly, and let it plug into the rest of onchain finance. If you are bringing an asset onchain, [talk to our team](mailto:institutional@kamino-foundation.com)."
+        }
+      ]
+    },
+    {
+      "slug": "fixed-rate-borrowing",
+      "title": "Fixed-rate borrowing is live",
+      "category": "announcements",
+      "tags": [
+        "Borrow",
+        "Fixed Rates",
+        "Product"
+      ],
+      "authors": [
+        "daniel-roux"
+      ],
+      "publishedAt": "2026-06-30",
+      "excerpt": "Lock a rate and a term when you borrow on Kamino. Instead of watching a variable rate drift, you know the exact cost before you sign.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/3dcdb3157f681bf180911315ae16c48f6ac88f38-1600x900.png",
+      "coverFocus": "center",
+      "featured": false,
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "You can now borrow on Kamino at a fixed rate for a fixed term. Pick the term, see the exact cost, and sign — the rate holds for the life of the loan."
+        },
+        {
+          "_type": "paragraph",
+          "text": "Variable rates are the right tool for a lot of borrowing, but they ask you to hold a view on where rates go next. A fixed rate removes that question. It is the difference between borrow-and-monitor and borrow-and-forget."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "How it works",
+          "id": "how-it-works"
+        },
+        {
+          "_type": "list",
+          "style": "number",
+          "items": [
+            "Choose a market and the term you want — 30, 90, or 180 days at launch.",
+            "Kamino quotes a fixed rate and the total interest in dollars, up front.",
+            "Sign once. Repay any time before maturity; exit early for a transparent spread."
+          ]
+        },
+        {
+          "_type": "callout",
+          "tone": "success",
+          "text": "Withdraw and repay always stay open. A fixed term sets your rate, not a lockup on your collateral."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Where fixed rates fit",
+          "id": "where-fixed-rates-fit"
+        },
+        {
+          "_type": "paragraph",
+          "text": "Fixed-rate borrowing pairs naturally with a known-duration plan: financing a position you intend to hold for a quarter, or borrowing against collateral while you wait out a vesting schedule. You size the cost once and it does not move."
+        },
+        {
+          "_type": "table",
+          "head": [
+            "",
+            "Variable rate",
+            "Fixed rate"
+          ],
+          "rows": [
+            [
+              "Cost certainty",
+              "Moves with the market",
+              "Locked for the term"
+            ],
+            [
+              "Best for",
+              "Open-ended borrowing",
+              "Known-duration plans"
+            ],
+            [
+              "Early exit",
+              "Anytime, no spread",
+              "Anytime, transparent spread"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "integrating-new-stablecoins",
+      "title": "Adding new stablecoins: how Kamino integrates Ethena and Global Dollar Network",
+      "category": "deep-dives",
+      "tags": [
+        "Stablecoins",
+        "Architecture",
+        "Integrations"
+      ],
+      "authors": [
+        "priya-nair"
+      ],
+      "publishedAt": "2026-06-24",
+      "excerpt": "Listing a new stablecoin is not a config change. It is a pricing problem, a risk problem, and a liquidity problem — solved in that order.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/edd2f6d468a7e21a6732324f4b62906a0d4cf454-1600x900.png",
+      "coverFocus": "center",
+      "featured": false,
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "When Kamino added USDe from Ethena and USDG from Global Dollar Network, the visible change was two new options in the app. The invisible work was three problems solved in order: how to price it, how to risk it, and how to give it somewhere to trade."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Pricing before anything else",
+          "id": "pricing-before-anything-else"
+        },
+        {
+          "_type": "paragraph",
+          "text": "A stablecoin is only worth its peg until it isn’t. Before either asset could be collateral, it had to price through Kamino’s oracle architecture — aggregated feeds with confidence bounds, so a single wobble on one venue can’t drag a whole market with it."
+        },
+        {
+          "_type": "image",
+          "src": "https://cdn.sanity.io/images/2kksiz70/production/8e628458d817322a70271fc825fa9471ce5e283b-1600x900.png",
+          "alt": "Kamino stablecoin yield",
+          "caption": "New stablecoins slot into the same Earn surface as the rest — priced and risked the same way.",
+          "width": "wide"
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "Risk in isolation, then integration",
+          "id": "risk-in-isolation-then-integration"
+        },
+        {
+          "_type": "list",
+          "style": "bullet",
+          "items": [
+            "**Start isolated.** Each new stablecoin launches in a market scoped to itself, so its risk is contained while it earns a track record.",
+            "**Set conservative caps.** Supply and borrow caps start low and rise as depth and history build.",
+            "**Graduate carefully.** Only once a peg has held through real volatility does an asset earn broader integration."
+          ]
+        },
+        {
+          "_type": "callout",
+          "tone": "info",
+          "title": "Two different designs, one framework",
+          "text": "USDe and USDG maintain their pegs in very different ways. The integration framework doesn’t care about the mechanism — it cares about the price, the depth, and the history, measured the same way for both."
+        }
+      ]
+    },
+    {
+      "slug": "falconx-institutional-liquidity",
+      "title": "FalconX brings institutional liquidity to Kamino",
+      "category": "partner-stories",
+      "tags": [
+        "Institutions",
+        "Liquidity",
+        "Partners"
+      ],
+      "authors": [
+        "leo-fischer"
+      ],
+      "publishedAt": "2026-06-17",
+      "excerpt": "One of the largest digital-asset prime brokers is now routing liquidity into Kamino markets, tightening spreads for everyone who trades and borrows.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/216756d908c5156f7aca81f69a37a35513e8563f-1600x900.png",
+      "coverFocus": "center",
+      "featured": false,
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "FalconX, a prime broker serving institutions across digital assets, is now providing liquidity into Kamino markets. For everyone using Kamino, that shows up as one thing: tighter execution."
+        },
+        {
+          "_type": "paragraph",
+          "text": "Deeper liquidity behind a market means less price impact on a trade and a fairer rate on a swap. When an institution the size of FalconX participates, that depth compounds for every other participant — retail and institutional alike."
+        },
+        {
+          "_type": "callout",
+          "tone": "info",
+          "title": "Why it matters downstream",
+          "text": "Better liquidity flows straight into Multiply and repay-with-collateral, which route their swaps through the same venues. A tighter market is a cheaper leveraged position."
+        },
+        {
+          "_type": "stat",
+          "items": [
+            {
+              "_key": "b3s0",
+              "label": "Broker-grade liquidity",
+              "value": "Prime"
+            },
+            {
+              "_key": "b3s1",
+              "label": "Spreads on swaps",
+              "value": "Tighter"
+            },
+            {
+              "_key": "b3s2",
+              "label": "Onchain, always open",
+              "value": "24/7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "privy-onboarding",
+      "title": "One-tap onboarding, powered by Privy",
+      "category": "partner-stories",
+      "tags": [
+        "Onboarding",
+        "Wallets",
+        "Partners"
+      ],
+      "authors": [
+        "maya-osei"
+      ],
+      "publishedAt": "2026-05-28",
+      "excerpt": "New users can now create a self-custodial account with an email or a passkey — no seed phrase to write down — using embedded wallets from Privy.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/097067d958c53386dc507d8a9bbc9f4125adece1-1600x900.png",
+      "coverFocus": "center",
+      "featured": false,
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "The hardest part of onchain finance has always been the first thirty seconds. We rebuilt them with Privy: a new user can now open a self-custodial account with an email or a passkey, and start in minutes."
+        },
+        {
+          "_type": "paragraph",
+          "text": "The account is still fully self-custodial — keys are generated and held on the user’s device, not by us. What changes is that a first-time user is no longer asked to write down twelve words before they have done anything."
+        },
+        {
+          "_type": "callout",
+          "tone": "success",
+          "title": "Still your keys",
+          "text": "Embedded wallets don’t change custody. The signing key stays on your device; Privy makes creating and recovering it feel like signing into any modern app."
+        },
+        {
+          "_type": "paragraph",
+          "text": "For anyone who wants the traditional path, connecting an existing wallet or a hardware device still works exactly as before. The embedded route is a friendlier front door, not a replacement."
+        }
+      ]
+    },
+    {
+      "slug": "stablecoin-yield-standard",
+      "title": "A new standard for stablecoin yield",
+      "category": "announcements",
+      "tags": [
+        "Earn",
+        "Stablecoins",
+        "Yield"
+      ],
+      "authors": [
+        "maya-osei",
+        "priya-nair"
+      ],
+      "publishedAt": "2026-05-20",
+      "excerpt": "Yield on your stablecoins that comes from overcollateralized lending, shown in dollars, with same-day access. No emissions, no lockups.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/8e628458d817322a70271fc825fa9471ce5e283b-1600x900.png",
+      "coverFocus": "center",
+      "featured": false,
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "We rebuilt how Earn presents stablecoin yield: where the return comes from, what it costs, and how fast you can get your money back — stated plainly, in dollars."
+        },
+        {
+          "_type": "paragraph",
+          "text": "The yield itself is not new or exotic. Deposited stablecoins are lent against overcollateralized positions in Kamino’s markets, and the rate is set by borrowing demand. What is new is that you can see exactly that, without decoding a wall of acronyms."
+        },
+        {
+          "_type": "stat",
+          "items": [
+            {
+              "_key": "b2s0",
+              "label": "Representative yield",
+              "value": "6.33%"
+            },
+            {
+              "_key": "b2s1",
+              "label": "Withdrawal access",
+              "value": "Same-day"
+            },
+            {
+              "_key": "b2s2",
+              "label": "Emissions in the number",
+              "value": "$0"
+            }
+          ]
+        },
+        {
+          "_type": "callout",
+          "tone": "info",
+          "title": "Where the yield comes from",
+          "text": "Every dollar of yield traces to a borrower paying interest on an overcollateralized loan. It is not subsidised by a token emission, so the rate you see is the rate the market is actually paying."
+        }
+      ]
+    },
+    {
+      "slug": "allez-vault-risk-framework",
+      "title": "Inside curated vaults: the Allez risk framework",
+      "category": "deep-dives",
+      "tags": [
+        "Vaults",
+        "Risk",
+        "Curators"
+      ],
+      "authors": [
+        "priya-nair"
+      ],
+      "publishedAt": "2026-05-13",
+      "excerpt": "A curated vault is only as good as the framework behind it. Allez publishes theirs — here is how to read it, and why a named curator matters.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/81302cf3dc5eef23691569ff37a6e1a540cb17ef-1600x1010.png",
+      "coverFocus": "center",
+      "featured": false,
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "A lending vault makes one promise: your deposit is lent out carefully. “Carefully” is doing a lot of work in that sentence. Curated vaults exist to make it legible — a named curator, Allez, sets and publishes the rules the vault lives by."
+        },
+        {
+          "_type": "paragraph",
+          "text": "That is the difference between a black box and a framework you can actually read before you deposit."
+        },
+        {
+          "_type": "heading",
+          "level": 2,
+          "text": "What a curator actually decides",
+          "id": "what-a-curator-actually-decides"
+        },
+        {
+          "_type": "table",
+          "head": [
+            "Decision",
+            "What it controls"
+          ],
+          "rows": [
+            [
+              "Eligible collateral",
+              "Which assets the vault will lend against"
+            ],
+            [
+              "Supply & borrow caps",
+              "How much exposure to any one market"
+            ],
+            [
+              "Liquidation thresholds",
+              "How much buffer before a position is unwound"
+            ],
+            [
+              "Oracle sources",
+              "Which price feeds the vault trusts"
+            ]
+          ]
+        },
+        {
+          "_type": "callout",
+          "tone": "success",
+          "text": "Every parameter is published and versioned. When the framework changes, the change is visible — you are never re-underwritten silently."
+        },
+        {
+          "_type": "paragraph",
+          "text": "A named curator also means accountability. There is a team whose reputation rides on the vault performing as described — which is exactly the incentive you want standing behind your deposit."
+        }
+      ]
+    },
+    {
+      "slug": "vaults-one-million-interest",
+      "title": "Curated vaults cross $1M in interest earned",
+      "category": "announcements",
+      "tags": [
+        "Vaults",
+        "Milestone",
+        "Earn"
+      ],
+      "authors": [
+        "the-kamino-team"
+      ],
+      "publishedAt": "2026-05-06",
+      "excerpt": "The Allez-curated lending vaults have now paid out more than $1M in interest to depositors. A note on the milestone and what it signals.",
+      "cover": {
+        "variant": 0
+      },
+      "coverImageUrl": "https://cdn.sanity.io/images/2kksiz70/production/965298257abead77175302032ec07ff77d058374-1600x800.png",
+      "coverFocus": "left",
+      "featured": false,
+      "body": [
+        {
+          "_type": "paragraph",
+          "variant": "lead",
+          "text": "Depositors in the Allez-curated vaults on Kamino have now earned more than $1M in interest, all of it from real borrowing demand."
+        },
+        {
+          "_type": "paragraph",
+          "text": "It is a small number next to traditional markets and a meaningful one for a set of vaults built the careful way: named curators, published risk frameworks, and yield that comes from overcollateralized lending rather than incentives."
+        },
+        {
+          "_type": "quote",
+          "text": "A million dollars of interest is a million dollars someone chose to pay to borrow — that is the signal we care about.",
+          "attribution": "The Kamino Team"
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "slug": "daniel-roux",
+      "name": "Daniel Roux",
+      "role": "Protocol Engineering",
+      "bio": "Builds and audits the lending core. Writes about the mechanics under the hood.",
+      "avatarSeed": 0
+    },
+    {
+      "slug": "leo-fischer",
+      "name": "Leo Fischer",
+      "role": "Partnerships",
+      "bio": "Works with issuers and institutions bringing real-world assets and capital onchain.",
+      "avatarSeed": 0
+    },
+    {
+      "slug": "maya-osei",
+      "name": "Maya Osei",
+      "role": "Product",
+      "bio": "Works on the consumer surfaces of Kamino — the flows that turn onchain finance into something anyone can use.",
+      "avatarSeed": 0
+    },
+    {
+      "slug": "priya-nair",
+      "name": "Priya Nair",
+      "role": "Markets & Risk",
+      "bio": "Sets and monitors the risk frameworks behind Kamino’s markets and vaults.",
+      "avatarSeed": 0
+    },
+    {
+      "slug": "the-kamino-team",
+      "name": "The Kamino Team",
+      "role": "Kamino",
+      "bio": "Notes and announcements from across the team.",
+      "avatarSeed": 0
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+/**
+ * Design tokens — auto-generated from Figma variables.
+ * DO NOT EDIT BY HAND. Regenerate via /tmp/icon-export/generate-tokens.py.
+ *
+ * Source: Kamino v2.0 Design System (file `jnR7xN4VISLvVKxSXFrNSU`).
+ * Token names mirror the Figma names exactly: `base/foo` → `--base-foo`.
+ */
+
+:root {
+  /* Colors — semantic */
+  --base-accent-foreground: #171717;
+  --base-background: #ffffff;
+  --base-border: #e5e5e5;
+  --base-canvas: #f5f5f5;
+  --base-card: #f5f5f599;
+  --base-foreground: #0b172b;
+  --base-input: #e5e5e5;
+  --base-muted: #fafafa;
+  --base-muted-foreground: #737373;
+  --base-popover: #ffffff;
+  --base-primary: #262626;
+  --base-primary-foreground: #fafafa;
+  --base-secondary: #5381c4;
+  --base-secondary-foreground: #edf4fa;
+  --base-sidebar: #f5f5f5;
+  --base-sidebar-accent: #e5e5e5;
+  --base-sidebar-accent-foreground: #171717;
+  --base-sidebar-foreground: #52525b;
+  --base-sidebar-primary: #15488f;
+  --base-sidebar-ring: #a1a1a1;
+  --base-success: #059669;
+  --base-warning: #ea6f17;
+
+  /* Colors — alpha primitives */
+  --alpha-5: #fffffff2;
+
+  /* Spacing scale (px) */
+  --spacing-0: 0;
+  --spacing-0-5: 2px;
+  --spacing-1: 4px;
+  --spacing-1-5: 6px;
+  --spacing-2: 8px;
+  --spacing-2-5: 10px;
+  --spacing-20: 80px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-8: 32px;
+
+  /* Sizing scale (px) */
+  --sizing-h-3: 12px;
+  --sizing-h-4: 16px;
+  --sizing-h-5: 20px;
+  --sizing-h-7: 28px;
+  --sizing-h-8: 32px;
+  --sizing-h-9: 36px;
+  --sizing-w-10: 40px;
+  --sizing-w-12: 48px;
+  --sizing-w-14: 56px;
+  --sizing-w-4: 16px;
+  --sizing-w-5: 20px;
+  --sizing-w-7: 28px;
+  --sizing-w-8: 32px;
+  --sizing-w-9: 36px;
+
+  /* Max-width scale (px) */
+  --max-width-max-w-lg: 512px;
+
+  /* Type scale (px) */
+  --text-3xl-font-size: 30px;
+  --text-3xl-line-height: 36px;
+  --text-sm-font-size: 14px;
+  --text-sm-line-height: 20px;
+  --text-xs-font-size: 12px;
+  --text-xs-line-height: 16px;
+
+  /* Font families */
+  --font-font-mono: "Aeonik Fono";
+  --font-font-sans: "Aeonik";
+
+  /* Font weights */
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+
+  /* Radius scale (px) */
+  --radius-rounded-2xl: 12px;
+  --radius-rounded-3xl: 16px;
+  --radius-rounded-4xl: 20px;
+  --radius-rounded-full: 9999px;
+  --radius-rounded-lg: 6px;
+  --radius-rounded-md: 4px;
+  --radius-rounded-xl: 8px;
+
+  /* Border widths (px) */
+  --border-width-border: 0.5px;
+  --border-width-border-2: 1px;
+
+  /* Opacity (%) */
+  --opacity-opacity-40: 0.4;
+  --opacity-opacity-50: 0.5;
+
+  /* Shadows */
+  --shadow-xs-offset-x: 0;
+  --shadow-xs-offset-y: 1px;
+  --shadow-xs-blur: 2px;
+  --shadow-xs-spread: 0;
+  --shadow-xs-color: #0000000d;
+  --shadow-xs: 0 1px 2px 0 #0000000d;
+
+  /* Legacy aliases — point to the canonical namespaced tokens */
+  --background: var(--base-background);
+  --foreground: var(--base-foreground);
+  --card: var(--base-card);
+  --popover: var(--base-popover);
+  --primary: var(--base-primary);
+  --secondary: var(--base-secondary);
+  --secondary-foreground: var(--base-secondary-foreground);
+  --muted: var(--base-muted);
+  --muted-foreground: var(--base-muted-foreground);
+  --accent: var(--base-canvas);
+  --accent-foreground: var(--base-foreground);
+  --border: var(--base-border);
+  --input: var(--base-input);
+  --canvas: var(--base-canvas);
+  --sidebar: var(--base-sidebar);
+  --sidebar-foreground: var(--base-sidebar-foreground);
+  --sidebar-accent-foreground: var(--base-sidebar-accent-foreground);
+  --success: var(--base-success);
+  --warning: var(--base-warning);
+  --ring: var(--base-sidebar-ring);
+}

@@ -1,0 +1,75 @@
+/**
+ * Design-system font declarations.
+ *
+ * The actual font files (woff2) live in the shared `/public/fonts/` directory
+ * at the repo root, served at `/fonts/...` by both apps' Vite dev/build via
+ * `publicDir: '../../public'`. Both apps import this file from their entry
+ * CSS so the same Aeonik / Aeonik Fono stack is registered identically.
+ */
+
+/* Aeonik — sans-serif */
+@font-face {
+  font-family: 'Aeonik';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/aeonik-light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aeonik';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/aeonik-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aeonik';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/aeonik-medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aeonik';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/aeonik-semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aeonik';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/aeonik-bold.woff2') format('woff2');
+}
+
+/* Aeonik Fono — monospaced (used for numerical data) */
+@font-face {
+  font-family: 'Aeonik Fono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/aeonikfono-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aeonik Fono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/aeonikfono-medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aeonik Fono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/aeonikfono-semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aeonik Fono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/aeonikfono-bold.woff2') format('woff2');
+}

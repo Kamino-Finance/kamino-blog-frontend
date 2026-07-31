@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kamino Blog</title>
+    <link>https://kamino.finance/blog</link>
+    <atom:link href="https://kamino.finance/blog/feed.xml" rel="self" type="application/rss+xml" />
+    <description>Product launches, partner stories, and deep dives from the team building onchain finance at Kamino.</description>
+    <language>en</language>
+    <item>
+      <title>xPoints are live on Kamino</title>
+      <link>https://kamino.finance/blog/xpoints-live</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/xpoints-live</guid>
+      <pubDate>Wed, 22 Jul 2026 09:00:00 GMT</pubDate>
+      <category>announcements</category>
+      <description>Earn xPoints for what you already do on Kamino — including trading tokenized stocks through xStocks. Here’s how the program works.</description>
+    </item>
+    <item>
+      <title>How Kamino Multiply builds a leveraged position in one transaction</title>
+      <link>https://kamino.finance/blog/multiply-one-transaction</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/multiply-one-transaction</guid>
+      <pubDate>Wed, 15 Jul 2026 09:00:00 GMT</pubDate>
+      <category>deep-dives</category>
+      <description>One tap creates a leveraged position that would otherwise take a loop of deposits, borrows, and swaps. Here is the machinery that makes it atomic.</description>
+    </item>
+    <item>
+      <title>Solstice launches its market on Kamino</title>
+      <link>https://kamino.finance/blog/solstice-launch</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/solstice-launch</guid>
+      <pubDate>Wed, 01 Jul 2026 09:00:00 GMT</pubDate>
+      <category>partner-stories</category>
+      <description>Solstice brought its stablecoin suite to Kamino as an isolated market — borrow, lend, and earn against eUSX and USX in one place. Here is how it came together.</description>
+    </item>
+    <item>
+      <title>Fixed-rate borrowing is live</title>
+      <link>https://kamino.finance/blog/fixed-rate-borrowing</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/fixed-rate-borrowing</guid>
+      <pubDate>Tue, 30 Jun 2026 09:00:00 GMT</pubDate>
+      <category>announcements</category>
+      <description>Lock a rate and a term when you borrow on Kamino. Instead of watching a variable rate drift, you know the exact cost before you sign.</description>
+    </item>
+    <item>
+      <title>Adding new stablecoins: how Kamino integrates Ethena and Global Dollar Network</title>
+      <link>https://kamino.finance/blog/integrating-new-stablecoins</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/integrating-new-stablecoins</guid>
+      <pubDate>Wed, 24 Jun 2026 09:00:00 GMT</pubDate>
+      <category>deep-dives</category>
+      <description>Listing a new stablecoin is not a config change. It is a pricing problem, a risk problem, and a liquidity problem — solved in that order.</description>
+    </item>
+    <item>
+      <title>FalconX brings institutional liquidity to Kamino</title>
+      <link>https://kamino.finance/blog/falconx-institutional-liquidity</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/falconx-institutional-liquidity</guid>
+      <pubDate>Wed, 17 Jun 2026 09:00:00 GMT</pubDate>
+      <category>partner-stories</category>
+      <description>One of the largest digital-asset prime brokers is now routing liquidity into Kamino markets, tightening spreads for everyone who trades and borrows.</description>
+    </item>
+    <item>
+      <title>One-tap onboarding, powered by Privy</title>
+      <link>https://kamino.finance/blog/privy-onboarding</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/privy-onboarding</guid>
+      <pubDate>Thu, 28 May 2026 09:00:00 GMT</pubDate>
+      <category>partner-stories</category>
+      <description>New users can now create a self-custodial account with an email or a passkey — no seed phrase to write down — using embedded wallets from Privy.</description>
+    </item>
+    <item>
+      <title>A new standard for stablecoin yield</title>
+      <link>https://kamino.finance/blog/stablecoin-yield-standard</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/stablecoin-yield-standard</guid>
+      <pubDate>Wed, 20 May 2026 09:00:00 GMT</pubDate>
+      <category>announcements</category>
+      <description>Yield on your stablecoins that comes from overcollateralized lending, shown in dollars, with same-day access. No emissions, no lockups.</description>
+    </item>
+    <item>
+      <title>Inside curated vaults: the Allez risk framework</title>
+      <link>https://kamino.finance/blog/allez-vault-risk-framework</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/allez-vault-risk-framework</guid>
+      <pubDate>Wed, 13 May 2026 09:00:00 GMT</pubDate>
+      <category>deep-dives</category>
+      <description>A curated vault is only as good as the framework behind it. Allez publishes theirs — here is how to read it, and why a named curator matters.</description>
+    </item>
+    <item>
+      <title>Curated vaults cross $1M in interest earned</title>
+      <link>https://kamino.finance/blog/vaults-one-million-interest</link>
+      <guid isPermaLink="true">https://kamino.finance/blog/vaults-one-million-interest</guid>
+      <pubDate>Wed, 06 May 2026 09:00:00 GMT</pubDate>
+      <category>announcements</category>
+      <description>The Allez-curated lending vaults have now paid out more than $1M in interest to depositors. A note on the milestone and what it signals.</description>
+    </item>
+  </channel>
+</rss>

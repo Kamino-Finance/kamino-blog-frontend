@@ -1,0 +1,57 @@
+/**
+ * Blog keyframes and animation utilities.
+ *
+ * Route/entrance/layout motion runs through framer-motion (see
+ * `src/design/motion.ts`), which honours `prefers-reduced-motion` via
+ * `<MotionConfig reducedMotion="user">`. The CSS here covers the ambient,
+ * always-on flourishes that don't belong in React state — illustration drift,
+ * the hero grid parallax, skeleton shimmer — plus the reduced-motion
+ * kill-switch that neutralises them.
+ *
+ * Rules: animate only transform / opacity / filter. Never top/left/width.
+ */
+
+/* Skeleton / image placeholder shimmer. */
+@keyframes blog-shimmer {
+  from { background-position: -160% 0; }
+  to { background-position: 160% 0; }
+}
+
+/* Ambient illustration drift — a slow, small orbit. Each layer gets its own
+   delay so composed art breathes rather than pulsing in lockstep. */
+@keyframes blog-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -6px, 0); }
+}
+
+@keyframes blog-drift-alt {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(4px, 4px, 0); }
+}
+
+/* Slow conic spin used by the ambient rings behind category art. */
+@keyframes blog-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Gentle opacity breathe for glow layers. */
+@keyframes blog-breathe {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.85; }
+}
+
+.blog-drift { animation: blog-drift 9s cubic-bezier(0.42, 0, 0.58, 1) infinite; will-change: transform; }
+.blog-drift-alt { animation: blog-drift-alt 11s cubic-bezier(0.42, 0, 0.58, 1) infinite; will-change: transform; }
+.blog-spin-slow { animation: blog-spin-slow 60s linear infinite; will-change: transform; }
+.blog-breathe { animation: blog-breathe 7s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

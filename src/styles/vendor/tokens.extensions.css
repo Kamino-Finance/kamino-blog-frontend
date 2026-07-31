@@ -1,0 +1,78 @@
+/**
+ * Token extensions — values used by the app that don't (yet) exist in the
+ * Figma design-system variables. These are kept here, not in
+ * `tokens.generated.css`, so they're easy to spot and back-port to Figma.
+ *
+ * Each one carries a `Figma TODO:` comment describing what it's used for so
+ * the design team can either add it to the DS variables or replace the
+ * usage with an existing token. Do not add new entries here without a
+ * concrete plan to upstream them — every extension is a debt.
+ */
+
+:root {
+  /* Figma TODO: state token — outline-button hover background.
+     Used by `Button.tsx` (outline variant) and the wallet button hover. */
+  --base-canvas-hover: rgba(245, 245, 245, 0.8);
+
+  /* Figma TODO: state token — card / market-row hover background.
+     A darker neutral tint of `--base-card` (same hue, 0.8 vs 0.6 alpha).
+     Source: Figma node 3350:45450 ("card/position-overview", hover state).
+     Used by `MarketsTable` row hover, `PositionCard` hover, and
+     `ActionsSidebar` card hover. */
+  --base-card-hover: rgba(245, 245, 245, 0.8);
+
+  /* Figma TODO: alpha primitive — skeleton/placeholder background. */
+  --base-skeleton: rgba(245, 245, 245, 0.7);
+
+  /* Figma TODO: subtle background variants for warning/success badges.
+     Per Figma 3436:26572 (collateral APY pill) the spec is the base hue at
+     10% alpha — `rgba(--base-success rgb, 0.1)` — NOT a solid pre-tinted
+     hex. Using the alpha overlay lets the pill blend with whatever surface
+     it sits on (cards, panels, the form's lifted backgrounds) instead of
+     mismatching against a hardcoded sand-coloured fill. */
+  --base-warning-subtle: rgba(234, 111, 23, 0.1);
+  --base-success-subtle: rgba(5, 150, 105, 0.1);
+
+  /* Figma TODO: destructive (red) hue + soft background variant. Sourced
+     from Figma `EIPjl4XxloheOHP6S7zaJj / 2065:32707` (trending-card delta
+     badge for negative price moves) — solid hex per the design system's
+     existing badge convention (matches `success-foreground` / `warning-
+     foreground` pattern in Figma vars). Upstream when the DS adds the
+     `destructive` + `destructive-foreground` tokens. */
+  --base-destructive: #dc2a2a;
+  --base-destructive-foreground: #fef2f2;
+  --base-success-foreground: #edf7f2;
+  --base-warning-foreground: #fff7ed;
+
+  /* Figma TODO: muted-foreground at 10% alpha (used for progress-bar tracks). */
+  --base-muted-foreground-alpha-10: rgba(115, 115, 115, 0.10);
+
+  /* Figma TODO: progress-bar resting track colour. Sourced from Figma node
+     3002:55815 (Current LTV card progress track). Sits ~1 step darker than
+     --base-card so the green fill reads clearly. Upstream when the DS adds
+     a "track/rest" or "neutral-200" token. */
+  --base-track-rest: #dfdddd;
+
+  /* Figma TODO: white-border anti-alias on primary-action chips. Sampled
+     from Figma 3436:33843 — the "white border" anti-aliases to rgb≈50 over
+     the rgb=38 (#262626) chip, which is perceptually equivalent to
+     rgba(255,255,255,0.08). Used by AssetPositionCard PrimaryAction and
+     BorrowOrderCard primary chip dividers. */
+  --base-on-primary-divider: rgba(255, 255, 255, 0.08);
+
+  /* Figma TODO: secondary hover state. */
+  --base-secondary-hover: #3a6da7;
+
+  /* Figma TODO: card lift shadow — used by hover states on Action cards and
+     market rows. Composed from the foreground colour at low alpha so it
+     follows theme switches. */
+  --shadow-lift: 0 1px 2px 0 color-mix(in srgb, var(--base-foreground) 4%, transparent),
+    0 8px 24px -8px color-mix(in srgb, var(--base-foreground) 10%, transparent);
+
+  /* Figma TODO: focus-visible ring — 2px halo using the `ring` token at
+     50% alpha. Two flavours: outer (used by buttons) and inset (used by
+     clickable rows / cards where the ring should sit inside the bounds). */
+  --shadow-focus-ring: 0 0 0 2px color-mix(in srgb, var(--ring) 50%, transparent);
+  --shadow-focus-ring-inset: inset 0 0 0 2px color-mix(in srgb, var(--ring) 50%, transparent);
+
+}
