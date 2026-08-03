@@ -5,7 +5,7 @@
  * once `contentSource` is backed by Sanity, this script regenerates the feeds
  * from live content with no changes. Override the base URL with `SITE_URL`.
  *
- *   SITE_URL=https://kamino.finance/blog npm run feeds
+ *   SITE_URL=https://kamino.com/blog npm run feeds
  */
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -14,7 +14,7 @@ import { getAllPosts, CATEGORIES } from '../src/content/source'
 import { stripInlineMarks } from '../src/lib/text'
 import { isoDateTime } from '../src/lib/date'
 
-const SITE = (process.env.SITE_URL ?? 'https://kamino.finance/blog').replace(/\/$/, '')
+const SITE = (process.env.SITE_URL ?? 'https://kamino.com/blog').replace(/\/$/, '')
 const here = dirname(fileURLToPath(import.meta.url))
 const publicDir = resolve(here, '../public')
 

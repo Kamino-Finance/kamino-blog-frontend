@@ -3,10 +3,10 @@
  * the app's content model via the adapter, and writes
  * `src/content/generated/content.json` — which `contentSource` reads.
  *
- * Runs in `prebuild` (and can be run manually via `npm run sync`). If Sanity is
- * unreachable or `SANITY_READ_TOKEN` is missing (e.g. a local dev checkout with
- * no token), it writes an empty payload and `contentSource` falls back to the
- * local seed, so the app always builds and always has content.
+ * Runs in `prebuild` (and can be run manually via `npm run sync`). Local builds
+ * fall back to seed content when Sanity is unavailable. Production builds set
+ * `SANITY_SYNC_REQUIRED=true` so missing or unreachable CMS content fails the
+ * deployment instead.
  *
  * The read token is build-only (server-side); it never reaches the browser.
  */
@@ -25,9 +25,10 @@ const outFile = resolve(outDir, 'content.json')
 
 const PROJECT_ID = process.env.SANITY_PROJECT_ID ?? '2kksiz70'
 const DATASET = process.env.SANITY_DATASET ?? 'production'
+const SANITY_SYNC_REQUIRED = process.env.SANITY_SYNC_REQUIRED === 'true'
 
 // Minimal .env.local loader so local runs pick up the token without a
-// dependency; on Vercel the token comes from the real environment.
+// dependency; in CI the token comes from the deployment environment.
 function loadLocalEnv() {
   const envPath = resolve(appRoot, '.env.local')
   if (!existsSync(envPath)) return
@@ -43,11 +44,12 @@ function write(payload: { posts: Post[]; authors: Author[] }) {
 }
 
 async function main() {
-  loadLocalEnv()
+  if (!process.env.SANITY_READ_TOKEN) loadLocalEnv()
   const token = process.env.SANITY_READ_TOKEN
 
   if (!token) {
-    console.warn('[sync-content] No SANITY_READ_TOKEN — writing empty payload (app falls back to local seed).')
+    if (SANITY_SYNC_REQUIRED) throw new Error('SANITY_READ_TOKEN is required for production builds')
+    console.warn('[sync-content] No SANITY_READ_TOKEN; writing empty payload (app falls back to local seed).')
     write({ posts: [], authors: [] })
     return
   }
@@ -71,10 +73,16 @@ async function main() {
 
     write({ posts, authors })
     console.log(`[sync-content] Wrote ${posts.length} posts + ${authors.length} authors from Sanity → ${outFile}`)
-  } catch (err) {
-    console.warn(`[sync-content] Sanity fetch failed (${(err as Error).message}) — writing empty payload; app falls back to local seed.`)
+  } catch (error) {
+    if (SANITY_SYNC_REQUIRED) throw error
+    const message = error instanceof Error ? error.message : String(error)
+    console.warn(`[sync-content] Sanity fetch failed (${message}); writing empty payload (app falls back to local seed).`)
     write({ posts: [], authors: [] })
   }
 }
 
-main()
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error)
+  console.error(`[sync-content] ${message}`)
+  process.exitCode = 1
+})
