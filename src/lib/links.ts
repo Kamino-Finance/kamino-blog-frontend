@@ -4,9 +4,10 @@
  * The blog is a standalone deployment, so these point at other origins. Kept in
  * one place so the FE team can repoint them at handoff (env or edit here).
  */
-export const KAMINO_SITE = 'https://kamino.finance'
-export const KAMINO_APP = 'https://app.kamino.finance'
-export const KAMINO_DOCS = 'https://docs.kamino.finance'
+export const KAMINO_SITE = 'https://kamino.com'
+// The app and marketing site share one origin now (app.kamino.finance redirects here).
+export const KAMINO_APP = KAMINO_SITE
+export const KAMINO_DOCS = `${KAMINO_SITE}/docs`
 export const CONTACT_EMAIL = 'mailto:institutional@kamino-foundation.com'
 
 export const SOCIAL = {

@@ -41,7 +41,6 @@ export function BlogFooter() {
             </FooterCol>
             <FooterCol title="Product">
               <FooterA href={KAMINO_APP}>Launch app</FooterA>
-              <FooterA href={KAMINO_SITE}>Kamino.finance</FooterA>
               <FooterA href={KAMINO_DOCS}>Docs</FooterA>
             </FooterCol>
             <FooterCol title="Company">
