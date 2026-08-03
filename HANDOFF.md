@@ -108,30 +108,104 @@ the app's block model via [`sanity/adapter.ts`](sanity/adapter.ts), and writes
 
 ---
 
-## Step 5 — Auto-rebuild on publish (repoint the webhook)
+## Step 5 — Auto-rebuild on publish
 
-Publishing rebuilds the site through Sanity, GitHub Actions, and AWS:
+The `deploy-blog` Sanity Function runs on Sanity's infrastructure when a
+published post or author is created, updated, or deleted. It authenticates as an
+organization-owned GitHub App, obtains a short-lived installation token, and
+dispatches `deploy.yml` on `master`. Draft and version edits are excluded.
 
-1. Create a fine-grained GitHub token from a service account. Limit repository
-   access to `Kamino-Finance/kamino-blog-frontend` and grant only **Actions:
-   Read and write**. Record its expiry so it can be rotated before it stops the
-   publish flow.
-2. In **manage.sanity.io → project `2kksiz70` → API → Webhooks**, update the
-   existing webhook or create a new one with:
-   - **URL:** `https://api.github.com/repos/Kamino-Finance/kamino-blog-frontend/actions/workflows/deploy.yml/dispatches`
-   - **Trigger on:** Create, Update, Delete
-   - **Filter:** `_type in ["post", "author"]`
-   - **Projection:** `{ "ref": "master" }`
-   - **Drafts:** off
-   - **Versions:** off
-   - **Method:** POST
-   - **HTTP header:** `Authorization: Bearer <fine-grained-token>`
-   - **HTTP header:** `Accept: application/vnd.github+json`
-   - **HTTP header:** `X-GitHub-Api-Version: 2026-03-10`
-3. Ensure the GitHub `Deploy to Prod` environment does not require a manual
-   reviewer if published content should deploy automatically.
-4. Publish a test change, confirm the webhook attempt succeeds, and confirm the
-   `Deploy blog to AWS` workflow completes.
+The GitHub App configuration is intentionally narrow:
+
+- **App ID:** `4474304`
+- **Installation ID:** `150961368`
+- **Installed repository:** `Kamino-Finance/kamino-blog-frontend` only
+- **Repository permission:** Actions, read and write
+- **Contents and organization permissions:** none
+- **User authorization and GitHub App webhooks:** disabled
+
+Do not create a PAT, OAuth client secret, or direct Sanity webhook for this flow.
+
+### Deploy the Sanity Blueprint
+
+Use Node 24 on a trusted workstation, then authenticate with a Sanity account
+that can deploy Blueprints and create robot tokens:
+
+```bash
+cd studio
+npm ci
+npx sanity@latest login
+npx sanity@latest blueprints stacks --project-id 2kksiz70
+```
+
+If the project does not already have the blog production Stack, create and link
+it to the checked-in Blueprint:
+
+```bash
+npx sanity@latest blueprints init . \
+  --project-id 2kksiz70 \
+  --stack-name production
+```
+
+If the Stack already exists, link it instead of creating another one:
+
+```bash
+npx sanity@latest blueprints init . \
+  --project-id 2kksiz70 \
+  --stack-id <existing-stack-id>
+```
+
+Review and deploy the resources:
+
+```bash
+npm run blueprints:plan
+npm run blueprints:deploy
+```
+
+The Blueprint creates the function and gives it a Sanity Viewer robot token
+instead of the default Editor token. The function does not use the token, but
+the narrower role limits the automatically injected Sanity credential.
+
+### Add the GitHub App private key
+
+The function expects the downloaded GitHub App PEM as a base64-encoded function
+environment variable. Replace the path below with the absolute path to the PEM:
+
+```bash
+KAMINO_GITHUB_APP_KEY_B64="$(base64 < /absolute/path/to/github-app.private-key.pem | tr -d '\n')"
+npx sanity@latest functions env add \
+  deploy-blog \
+  GITHUB_APP_PRIVATE_KEY_BASE64 \
+  "$KAMINO_GITHUB_APP_KEY_B64"
+unset KAMINO_GITHUB_APP_KEY_B64
+```
+
+Confirm only the environment-variable name is listed:
+
+```bash
+npx sanity@latest functions env list deploy-blog
+```
+
+Never put the PEM in the repository, a `.env` file, GitHub Actions, or a
+`SANITY_STUDIO_*` variable. After the end-to-end test succeeds, remove the local
+PEM or move it into the company's approved secrets vault.
+
+### Test publishing
+
+1. Ensure the GitHub `Deploy to Prod` environment does not require a manual
+   reviewer.
+2. Disable any old Sanity webhook that calls GitHub directly, so a publish does
+   not create duplicate builds.
+3. Publish a harmless post change in the Studio.
+4. Check the Function logs with
+   `npx sanity@latest functions logs deploy-blog`.
+5. Confirm `Deploy blog to AWS` completes and the change appears on
+   `https://kamino.com/blog`.
+6. Repeat with an unpublish or delete to confirm content removal also deploys.
+
+To rotate the GitHub App key, generate a new key, replace the Function variable
+with the command above, test a publish, and then revoke the old key in the GitHub
+App settings.
 
 ---
 
@@ -158,6 +232,7 @@ authors and publishes there.
 | `BLOG_BASE` | build | Subpath base, e.g. `/blog/`. Sets asset paths + router basename. |
 | `SITE_URL` | build (feeds) | Canonical URL for `sitemap.xml` + `feed.xml`, e.g. `https://kamino.com/blog`. |
 | `SANITY_PROJECT_ID` | build (optional) | Overrides the default `2kksiz70` if you ever point at another project. |
+| `GITHUB_APP_PRIVATE_KEY_BASE64` | Sanity Function | Base64-encoded GitHub App PEM. Managed only with `sanity functions env`; never exposed to the Studio/browser. |
 
 ---
 
@@ -178,7 +253,8 @@ you're keeping, so leave them. They are the only external coupling points.
 - [ ] `Deploy blog to AWS` completes from `master` using GitHub OIDC
 - [ ] `/blog` and `/blog/*` resolve on kamino.com, assets load under `/blog`, SPA fallback works
 - [ ] Cloudflare redirects point legacy blog hostnames at `https://kamino.com/blog`
-- [ ] Sanity webhook repointed to your rebuild trigger; a test publish triggers a build
+- [ ] Sanity Blueprint deployed and `deploy-blog` has its GitHub App private key
+- [ ] Old direct-to-GitHub Sanity webhooks disabled; a test publish triggers one build
 - [ ] `sitemap.xml` + `feed.xml` regenerated with the production `SITE_URL`
 - [ ] Newsletter `submitEmail` in [`src/components/blog/NewsletterCta.tsx`](src/components/blog/NewsletterCta.tsx) wired to your ESP (currently a stub)
 - [ ] Per-post OG/meta and reduced-motion behavior spot-checked in prod
@@ -189,6 +265,6 @@ you're keeping, so leave them. They are the only external coupling points.
 
 | Piece | Owner | Notes |
 | --- | --- | --- |
-| Sanity project, Studio, content, schema, adapter | Kamino | Invited / transferred; runs unchanged |
+| Sanity project, Studio, content, schema, adapter, publish function | Kamino | Invited / transferred; Blueprint is under `studio/` |
 | S3, CloudFront, AWS deploy role | Kamino infra | Managed by the webapp CloudFormation stack |
 | Build and deployment workflow | Kamino frontend | Runs on `master` and Sanity publish dispatches |
