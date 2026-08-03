@@ -1,0 +1,88 @@
+name: Deploy blog to AWS
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: blog-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment: Deploy to Prod
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: eu-west-1
+      AWS_ROLE_ARN: arn:aws:iam::761317575087:role/gh-kamino-blog-frontend-kamino-com-deploy
+      BLOG_BUCKET: kamino-blog-frontend-761317575087
+      CLOUDFRONT_DISTRIBUTION_ID: E1QQ8YB7TQ30G2
+      BLOG_BASE: /blog/
+      SITE_URL: https://kamino.com/blog
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check source
+        run: npm run check
+
+      - name: Build production site
+        run: npm run build
+        env:
+          SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
+          SANITY_SYNC_REQUIRED: 'true'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e8614cfbf058de4c6c685b317488ecdec92a4305
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gh-blog-deploy-${{ github.run_id }}-${{ github.run_attempt }}
+          allowed-account-ids: '761317575087'
+
+      - name: Upload immutable assets
+        run: |
+          if [ -d dist/assets ]; then
+            aws s3 sync dist/assets "s3://$BLOG_BUCKET/assets" \
+              --cache-control "public,max-age=31536000,immutable"
+          fi
+
+      - name: Upload mutable files
+        run: |
+          aws s3 sync dist "s3://$BLOG_BUCKET" \
+            --delete \
+            --exclude "assets/*" \
+            --exclude "index.html" \
+            --cache-control "public,max-age=3600"
+
+          aws s3 cp dist/index.html "s3://$BLOG_BUCKET/index.html" \
+            --cache-control "no-cache,no-store,must-revalidate" \
+            --content-type "text/html"
+
+      - name: Invalidate blog cache
+        run: |
+          invalidation_id="$(aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/blog" "/blog/*" "/index.html" "/feed.xml" "/sitemap.xml" "/favicon.svg" "/fonts/*" "/illustrations/*" \
+            --query "Invalidation.Id" \
+            --output text)"
+
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --id "$invalidation_id"

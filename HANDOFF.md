@@ -4,9 +4,9 @@ Everything the dev team needs to take this blog live at **kamino.com/blog** with
 the Sanity CMS running intact. Pair this with [`README.md`](README.md) (how the
 app is built) — this doc is the go-live runbook.
 
-Verified before handoff: `npm run check` (tsc + eslint) is green, the folder has
-zero `@kamino/*` / workspace dependencies, and the full publish→rebuild chain
-works end to end against Sanity project `2kksiz70`.
+Verified before handoff: `npm run check` (tsc + eslint) is green and the folder
+has zero `@kamino/*` or workspace dependencies. The AWS deployment and Sanity
+publish trigger must be smoke-tested together after the first production deploy.
 
 ---
 
@@ -18,11 +18,9 @@ There is nothing to rebuild on the CMS side. You need three things: access to th
 project, a read token in your build environment, and the publish webhook pointed
 at *your* host's rebuild trigger.
 
-**2. The hosting is yours to own.** Where and how the site serves at
-kamino.com/blog is your infrastructure decision. The current Vercel deployment
-(`blog-roan-three-15.vercel.app`, on a personal account) is a working reference,
-not the production target. Re-create the same three primitives on Kamino infra:
-a build-time env var, a deploy trigger, and the Sanity webhook.
+**2. Kamino owns the production hosting.** The static build is stored in a
+dedicated private S3 bucket. The existing `kamino.com` CloudFront distribution
+routes `/blog` to that bucket. GitHub Actions builds and deploys through AWS OIDC.
 
 ---
 
@@ -50,7 +48,7 @@ required to build it.
 
 ```bash
 git clone <this repo> kamino-blog && cd kamino-blog
-npm install
+npm ci
 npm run check      # tsc + eslint — should be clean
 npm run dev        # http://localhost:5250
 npm run build      # runs prebuild sync + typecheck + build → dist/
@@ -66,7 +64,7 @@ scoped names, not dependencies. Rename them freely.
 
 ---
 
-## Step 3 — Serve it at kamino.com/blog (the one real integration decision)
+## Step 3 — Deploy it at kamino.com/blog
 
 The app is already subpath-ready. Build it with the base path set, and the router
 derives its `basename` automatically ([`vite.config.ts`](vite.config.ts) reads
@@ -76,36 +74,21 @@ derives its `basename` automatically ([`vite.config.ts`](vite.config.ts) reads
 BLOG_BASE=/blog/ SITE_URL=https://kamino.com/blog npm run build
 ```
 
-That makes every asset URL resolve under `/blog/…` and the routes live under
-`/blog`. Then wire the subpath one of three ways, depending on how kamino.com is
-hosted:
+That makes every asset URL resolve under `/blog/` and mounts the router there.
+The production workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
 
-**(a) Rewrite / multi-zone — recommended.** Keep the blog as its own deployment
-and have the main kamino.com project proxy the `/blog` path to it. This is how
-Stripe, Vercel, and most marketing sites host `/blog`: the blog ships and rebuilds
-independently, and marketing publishes never touch the main app. On the *main*
-project (Vercel example):
+1. Fetches published content from Sanity.
+2. Builds the app with the production base and canonical URL.
+3. Assumes `gh-kamino-blog-frontend-kamino-com-deploy` through GitHub OIDC.
+4. Uploads hashed assets with immutable caching and mutable files with short caching.
+5. Uploads `index.html` with caching disabled.
+6. Invalidates both the public blog paths and their rewritten mutable paths in
+   CloudFront. Hashed assets do not require invalidation.
 
-```jsonc
-{
-  "rewrites": [
-    { "source": "/blog",        "destination": "https://<blog-host>/blog" },
-    { "source": "/blog/:path*", "destination": "https://<blog-host>/blog/:path*" }
-  ]
-}
-```
-
-**(b) Reverse proxy.** If kamino.com sits behind nginx / Cloudflare, proxy
-`/blog/*` to the blog origin. Same independence as (a).
-
-**(c) Mount in the main app.** If kamino.com is a single app, serve the built
-`dist/` as static assets under `/blog`. Heaviest coupling — a blog publish
-rebuilds the whole app. Not recommended.
-
-**Required regardless of choice:** an SPA fallback so every `/blog/*` path serves
-`index.html` (the app is a client-rendered SPA). The included
-[`vercel.json`](vercel.json) is the template:
-`{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }`.
+CloudFront routes `/blog` and `/blog/*` to the dedicated blog bucket. Its
+viewer-request function serves the bucket's root `index.html` for SPA routes and
+strips the `/blog` prefix from asset requests. Redirects from the legacy blog
+hostnames are managed separately in Cloudflare.
 
 ---
 
@@ -117,32 +100,38 @@ the app's block model via [`sanity/adapter.ts`](sanity/adapter.ts), and writes
 `src/content/generated/content.json`, which gets bundled. Cover images resolve to
 `cdn.sanity.io` URLs and are served by Sanity's CDN.
 
-- Set **`SANITY_READ_TOKEN`** in your host's build environment (build-only, never
-  exposed to the browser).
-- If the token is missing or Sanity is unreachable, the sync writes an empty
-  payload and the app falls back to the committed local seed — so the build never
-  fails on a bad network. Set the token in production so you get live content.
+- Set **`SANITY_READ_TOKEN`** in the GitHub `Deploy to Prod` environment. It is
+  build-only and is never exposed to the browser.
+- Production sets `SANITY_SYNC_REQUIRED=true`. Missing credentials or a failed
+  Sanity request stops deployment instead of publishing local seed content.
+- Local builds retain the seed fallback so development works without credentials.
 
 ---
 
 ## Step 5 — Auto-rebuild on publish (repoint the webhook)
 
-Publishing rebuilds the site through: **Sanity GROQ webhook → your host's deploy
-trigger → rebuild (which reruns the sync)**. The webhook exists already; point it
-at your infrastructure:
+Publishing rebuilds the site through Sanity, GitHub Actions, and AWS:
 
-1. Create a rebuild trigger on your host — a Vercel **Deploy Hook**, a Netlify
-   **Build Hook**, or a CI dispatch URL (GitHub Actions `repository_dispatch`).
-2. **manage.sanity.io → project `2kksiz70` → API → Webhooks** → open the existing
-   webhook and change its **URL** to your new trigger (or create a fresh one and
-   delete the old one so it doesn't double-fire). Keep this config exactly:
-   - **Filter:** `_type in ["post", "author"]`
+1. Create a fine-grained GitHub token from a service account. Limit repository
+   access to `Kamino-Finance/kamino-blog-frontend` and grant only **Actions:
+   Read and write**. Record its expiry so it can be rotated before it stops the
+   publish flow.
+2. In **manage.sanity.io → project `2kksiz70` → API → Webhooks**, update the
+   existing webhook or create a new one with:
+   - **URL:** `https://api.github.com/repos/Kamino-Finance/kamino-blog-frontend/actions/workflows/deploy.yml/dispatches`
    - **Trigger on:** Create, Update, Delete
-   - **Drafts:** off · **Versions:** off · **Method:** POST
-   - Projection / Secret: empty (the trigger URL is the credential)
-
-Test it: edit and publish any post in the Studio, then confirm your host kicks off
-a build. (This exact flow is verified working against the reference deployment.)
+   - **Filter:** `_type in ["post", "author"]`
+   - **Projection:** `{ "ref": "master" }`
+   - **Drafts:** off
+   - **Versions:** off
+   - **Method:** POST
+   - **HTTP header:** `Authorization: Bearer <fine-grained-token>`
+   - **HTTP header:** `Accept: application/vnd.github+json`
+   - **HTTP header:** `X-GitHub-Api-Version: 2026-03-10`
+3. Ensure the GitHub `Deploy to Prod` environment does not require a manual
+   reviewer if published content should deploy automatically.
+4. Publish a test change, confirm the webhook attempt succeeds, and confirm the
+   `Deploy blog to AWS` workflow completes.
 
 ---
 
@@ -164,7 +153,8 @@ authors and publishes there.
 
 | Variable | When | Purpose |
 | --- | --- | --- |
-| `SANITY_READ_TOKEN` | build | Read published content from Sanity. Without it, falls back to local seed. |
+| `SANITY_READ_TOKEN` | build | Read published content from Sanity. Required by the production workflow. |
+| `SANITY_SYNC_REQUIRED` | production build | Fail instead of deploying seed content when Sanity cannot be read. |
 | `BLOG_BASE` | build | Subpath base, e.g. `/blog/`. Sets asset paths + router basename. |
 | `SITE_URL` | build (feeds) | Canonical URL for `sitemap.xml` + `feed.xml`, e.g. `https://kamino.com/blog`. |
 | `SANITY_PROJECT_ID` | build (optional) | Overrides the default `2kksiz70` if you ever point at another project. |
@@ -183,8 +173,11 @@ you're keeping, so leave them. They are the only external coupling points.
 
 - [ ] Dev + marketing invited to Sanity project `2kksiz70` (project transferred to a Kamino org if desired)
 - [ ] Own **Viewer** read token created → `SANITY_READ_TOKEN` set in the build env
+- [ ] AWS CloudFormation stack contains the blog bucket, OAC, routes, and deploy role
 - [ ] Builds clean standalone with `BLOG_BASE=/blog/ SITE_URL=https://kamino.com/blog`
+- [ ] `Deploy blog to AWS` completes from `master` using GitHub OIDC
 - [ ] `/blog` and `/blog/*` resolve on kamino.com, assets load under `/blog`, SPA fallback works
+- [ ] Cloudflare redirects point legacy blog hostnames at `https://kamino.com/blog`
 - [ ] Sanity webhook repointed to your rebuild trigger; a test publish triggers a build
 - [ ] `sitemap.xml` + `feed.xml` regenerated with the production `SITE_URL`
 - [ ] Newsletter `submitEmail` in [`src/components/blog/NewsletterCta.tsx`](src/components/blog/NewsletterCta.tsx) wired to your ESP (currently a stub)
@@ -197,5 +190,5 @@ you're keeping, so leave them. They are the only external coupling points.
 | Piece | Owner | Notes |
 | --- | --- | --- |
 | Sanity project, Studio, content, schema, adapter | Kamino | Invited / transferred; runs unchanged |
-| Blog hosting + rebuild trigger | Kamino infra | You deploy; repoint the webhook |
-| Reference Vercel deployment (`blog-roan-three-15`) | Personal (temporary) | Delete once you're live, or transfer to your Vercel org |
+| S3, CloudFront, AWS deploy role | Kamino infra | Managed by the webapp CloudFormation stack |
+| Build and deployment workflow | Kamino frontend | Runs on `master` and Sanity publish dispatches |

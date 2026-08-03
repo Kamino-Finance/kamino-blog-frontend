@@ -23,31 +23,31 @@ runbook; this README explains how the pieces fit.
 
 1. **Get Sanity access + a read token.** Join the Sanity project (`2kksiz70`) and
    set `SANITY_READ_TOKEN` in your build environment. *(HANDOFF Step 1)*
-2. **Host it under the `/blog` subpath.** Build with `BLOG_BASE=/blog/` and route
-   `kamino.com/blog` to this deployment. *(HANDOFF Step 3)*
-3. **Point the publish webhook at your host.** A Sanity webhook → your deploy/build
-   hook, so every publish rebuilds the site automatically. *(HANDOFF Step 5)*
+2. **Deploy it through GitHub Actions.** The production workflow builds with
+   `BLOG_BASE=/blog/` and uploads to the dedicated AWS bucket. *(HANDOFF Step 3)*
+3. **Point the publish webhook at GitHub Actions.** Every published content change
+   triggers the production workflow. *(HANDOFF Step 5)*
 4. **Wire the newsletter** form to your email provider — it's a stub today.
    *(see [Newsletter](#newsletter))*
 5. **Deploy the Studio** under your own host, or keep the existing one.
    *(HANDOFF Step 6)*
 
-That's the whole job. None of it changes the app code — it's access, hosting, and
-two integration points.
+The application remains independent from the main webapp. Its build and
+deployment lifecycle is owned by this repository.
 
 ---
 
 ## Quick start
 
 ```bash
-npm install
+npm ci
 npm run dev        # http://localhost:5250
 npm run build      # sync from Sanity → generate feeds → typecheck → build to dist/
 npm run check      # typecheck + lint
 ```
 
-Node 20+. With no `SANITY_READ_TOKEN` set, `dev` and `build` fall back to the
-committed seed content, so the app always runs. Copy `.env.example` to
+Use Node 20.19+, 22.13+, or 24+. With no `SANITY_READ_TOKEN` set, local `dev` and
+`build` fall back to the committed seed content. Copy `.env.example` to
 `.env.local` to configure it locally (both are gitignored).
 
 ---
@@ -68,9 +68,9 @@ Sanity (Studio)  ──prebuild sync──▶  content.json  ──▶  source.t
 - **`scripts/sync-content.ts`** (runs in `prebuild`, or `npm run sync`) fetches
   published posts + authors from Sanity and maps them through
   **`sanity/adapter.ts`** (Sanity portable-text → the app's block model).
-- If `SANITY_READ_TOKEN` is unset or Sanity is unreachable, the sync writes an
-  empty payload and `source.ts` falls back to the local seed in
-  `src/content/posts/*`. The build never fails on a bad network.
+- Local builds fall back to seed content when Sanity is unavailable. Production
+  sets `SANITY_SYNC_REQUIRED=true`, which fails the deployment instead of
+  publishing seed content.
 - Body content is a CMS-agnostic **block model** (`src/content/types.ts`) rendered
   by one `<PostBody>`: paragraph, headings, lists, image, gallery, quote, callout,
   code, table, stat, embed, divider.
@@ -93,13 +93,9 @@ Project `2kksiz70`, dataset `production`.
   `cd studio && npm run import`.
 
 **Auto-rebuild on publish.** Because content is baked in at build time, a publish
-takes effect on the next rebuild. Wire it once: create a deploy/build hook on your
-host, then add a Sanity **GROQ webhook** pointing at it (filter
-`_type in ["post", "author"]`, "Include drafts" **off**, method POST). Every
-publish then triggers a rebuild that re-syncs. Create GROQ webhooks from the
-Sanity **manage dashboard** — the token API only makes the older "transaction"
-type, which fires on every draft keystroke. Full steps in
-[`HANDOFF.md`](HANDOFF.md) (Step 5); this flow is verified working.
+takes effect on the next rebuild. A Sanity GROQ webhook calls the GitHub Actions
+`workflow_dispatch` endpoint after published posts or authors change. Full setup
+instructions are in [`HANDOFF.md`](HANDOFF.md) (Step 5).
 
 ---
 
@@ -115,12 +111,12 @@ BLOG_BASE=/blog/ SITE_URL=https://kamino.com/blog npm run build
 router `basename` from it automatically. `public/sitemap.xml` and
 `public/feed.xml` regenerate on every build from `SITE_URL`.
 
-Serve the subpath by rewriting/proxying `/blog` from the main kamino.com site to
-this deployment (the recommended multi-zone pattern), and make sure every
-`/blog/*` path serves `index.html` — it's a client-rendered SPA, and
-[`vercel.json`](vercel.json) is the fallback template. The three hosting patterns
-(rewrite, reverse-proxy, mount-in-app) are compared in
-[`HANDOFF.md`](HANDOFF.md) (Step 3).
+Production deploys are defined in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+The workflow builds on pushes to `master` or manual dispatches, assumes the AWS
+deployment role through GitHub OIDC, uploads `dist/` to the private blog bucket,
+and invalidates the blog's viewer and rewritten mutable paths. CloudFront selects
+the blog origin for `/blog` and `/blog/*`; its viewer-request function maps SPA
+routes to the blog bucket's root `index.html`.
 
 ---
 
@@ -128,7 +124,8 @@ this deployment (the recommended multi-zone pattern), and make sure every
 
 | Variable | When | Purpose |
 | --- | --- | --- |
-| `SANITY_READ_TOKEN` | build | Pull published content from Sanity. Falls back to seed if unset. |
+| `SANITY_READ_TOKEN` | build | Pull published content from Sanity. Required by the production workflow. |
+| `SANITY_SYNC_REQUIRED` | production build | Fail instead of deploying seed content when Sanity cannot be read. |
 | `BLOG_BASE` | build | Subpath base, e.g. `/blog/`. Sets asset paths + router basename. Leave unset for local dev. |
 | `SITE_URL` | build (feeds) | Canonical URL for `sitemap.xml` + `feed.xml`. |
 | `SANITY_PROJECT_ID` | build (optional) | Overrides the default `2kksiz70`. |

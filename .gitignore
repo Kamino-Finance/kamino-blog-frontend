@@ -9,9 +9,8 @@ dist
 .env.local
 .env.*.local
 
-# sanity / vercel / tooling artifacts
+# sanity / tooling artifacts
 .sanity
-.vercel
 seed.ndjson
 
 # logs & OS
