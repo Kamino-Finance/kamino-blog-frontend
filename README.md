@@ -25,8 +25,9 @@ runbook; this README explains how the pieces fit.
    set `SANITY_READ_TOKEN` in your build environment. *(HANDOFF Step 1)*
 2. **Deploy it through GitHub Actions.** The production workflow builds with
    `BLOG_BASE=/blog/` and uploads to the dedicated AWS bucket. *(HANDOFF Step 3)*
-3. **Point the publish webhook at GitHub Actions.** Every published content change
-   triggers the production workflow. *(HANDOFF Step 5)*
+3. **Deploy the Sanity publish function.** Every published content change
+   triggers the production workflow through the repository-scoped GitHub App.
+   *(HANDOFF Step 5)*
 4. **Wire the newsletter** form to your email provider — it's a stub today.
    *(see [Newsletter](#newsletter))*
 5. **Deploy the Studio** under your own host, or keep the existing one.
@@ -93,9 +94,11 @@ Project `2kksiz70`, dataset `production`.
   `cd studio && npm run import`.
 
 **Auto-rebuild on publish.** Because content is baked in at build time, a publish
-takes effect on the next rebuild. A Sanity GROQ webhook calls the GitHub Actions
-`workflow_dispatch` endpoint after published posts or authors change. Full setup
-instructions are in [`HANDOFF.md`](HANDOFF.md) (Step 5).
+takes effect on the next rebuild. The `deploy-blog` Sanity Function authenticates
+as a repository-scoped GitHub App and calls the GitHub Actions
+`workflow_dispatch` endpoint after published posts or authors change. Draft edits
+do not invoke it. Full setup instructions are in [`HANDOFF.md`](HANDOFF.md)
+(Step 5).
 
 ---
 
@@ -129,6 +132,7 @@ routes to the blog bucket's root `index.html`.
 | `BLOG_BASE` | build | Subpath base, e.g. `/blog/`. Sets asset paths + router basename. Leave unset for local dev. |
 | `SITE_URL` | build (feeds) | Canonical URL for `sitemap.xml` + `feed.xml`. |
 | `SANITY_PROJECT_ID` | build (optional) | Overrides the default `2kksiz70`. |
+| `GITHUB_APP_PRIVATE_KEY_BASE64` | Sanity Function | Base64-encoded private key for the repository-scoped GitHub App. Set with `sanity functions env add`, never as a Studio variable. |
 
 ---
 
@@ -145,7 +149,7 @@ src/
   pages/          Index · Post · Category · Author · NotFound
 sanity/           portable-text → block-model adapter (used at build time)
 scripts/          sync-content.ts (Sanity → content.json), generate-feeds.ts
-studio/           the Sanity Studio (marketing's editor)
+studio/           the Sanity Studio, Blueprint, and publish function
 public/fonts/     vendored Aeonik / Aeonik Fono
 ```
 

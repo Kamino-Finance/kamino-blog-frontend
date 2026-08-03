@@ -6,8 +6,8 @@ export default defineCliConfig({
     dataset: 'production',
   },
   studioHost: 'kamino-blog',
-  autoUpdates: true,
   deployment: {
     appId: 'wjfsewr1b6ywb847g3aey7pt',
+    autoUpdates: true,
   },
 })
