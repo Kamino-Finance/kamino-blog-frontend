@@ -116,10 +116,13 @@ router `basename` from it automatically. `public/sitemap.xml` and
 
 Production deploys are defined in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 The workflow builds on pushes to `master` or manual dispatches, assumes the AWS
-deployment role through GitHub OIDC, uploads `dist/` to the private blog bucket,
+deployment role through GitHub OIDC, uploads `dist/` to the private blog bucket
+under `blog/` and, until the kamino.com stack update ships, at the bucket root,
 and invalidates the blog's viewer and rewritten mutable paths. CloudFront selects
 the blog origin for `/blog` and `/blog/*`; its viewer-request function maps SPA
-routes to the blog bucket's root `index.html`.
+routes to `blog/index.html` and keeps the `/blog` prefix on files, so blog cache
+entries never collide with the webapp's (see `scripts/cloudformation/README.md`
+in `kamino-webapp`).
 
 ---
 

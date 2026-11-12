@@ -56,24 +56,38 @@ jobs:
           role-session-name: gh-blog-deploy-${{ github.run_id }}-${{ github.run_attempt }}
           allowed-account-ids: '761317575087'
 
+      # The build is uploaded twice: under blog/, which the kamino.com CloudFront function
+      # reads once it keeps the /blog prefix in cache keys, and at the bucket root, which
+      # the current function reads. Drop the root upload after the stack update.
       - name: Upload immutable assets
         run: |
           if [ -d dist/assets ]; then
-            aws s3 sync dist/assets "s3://$BLOG_BUCKET/assets" \
-              --cache-control "public,max-age=31536000,immutable"
+            for prefix in "" "blog/"; do
+              aws s3 sync dist/assets "s3://$BLOG_BUCKET/${prefix}assets" \
+                --cache-control "public,max-age=31536000,immutable"
+            done
           fi
 
       - name: Upload mutable files
         run: |
           aws s3 sync dist "s3://$BLOG_BUCKET" \
             --delete \
+            --exclude "blog/*" \
             --exclude "assets/*" \
             --exclude "index.html" \
             --cache-control "public,max-age=3600"
 
-          aws s3 cp dist/index.html "s3://$BLOG_BUCKET/index.html" \
-            --cache-control "no-cache,no-store,must-revalidate" \
-            --content-type "text/html"
+          aws s3 sync dist "s3://$BLOG_BUCKET/blog" \
+            --delete \
+            --exclude "assets/*" \
+            --exclude "index.html" \
+            --cache-control "public,max-age=3600"
+
+          for prefix in "" "blog/"; do
+            aws s3 cp dist/index.html "s3://$BLOG_BUCKET/${prefix}index.html" \
+              --cache-control "no-cache,no-store,must-revalidate" \
+              --content-type "text/html"
+          done
 
       - name: Invalidate blog cache
         run: |
