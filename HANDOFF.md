@@ -86,8 +86,10 @@ The production workflow in [`.github/workflows/deploy.yml`](.github/workflows/de
    CloudFront. Hashed assets do not require invalidation.
 
 CloudFront routes `/blog` and `/blog/*` to the dedicated blog bucket. Its
-viewer-request function serves the bucket's root `index.html` for SPA routes and
-strips the `/blog` prefix from asset requests. Redirects from the legacy blog
+viewer-request function serves `blog/index.html` for SPA routes and requests
+files at their `/blog/...` path, so the bucket keeps the build under `blog/`.
+The workflow also uploads to the bucket root until the kamino.com stack update
+that stops stripping the prefix ships. Redirects from the legacy blog
 hostnames are managed separately in Cloudflare.
 
 ---
